@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace EyPhp\Container;
 
 
+use Closure;
+use Exception;
 use EyPhp\Container\Contract\ServiceProviderInterface;
 use EyPhp\Container\Definition\AliasDefinition;
 use EyPhp\Container\Definition\BindDefinition;
@@ -22,6 +24,7 @@ use EyPhp\Container\Definition\ObjectDefinition;
 use EyPhp\Container\Definition\ValueDefinition;
 use EyPhp\Container\Exception\ContainerException;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
 
 class Container implements ContainerInterface
 {
@@ -86,16 +89,9 @@ class Container implements ContainerInterface
      * @param array  $methods
      * @return ClosureDefinition|ObjectDefinition|ValueDefinition
      */
-    public function set(
-        $key,
-        $concrete,
-        array $construct = [],
-        array $properties = [],
-        array $methods = []
-    )
+    public function set($key, $concrete, array $construct = [], array $properties = [], array $methods = [])
     {
-
-        if ($concrete instanceof \Closure) {
+        if ($concrete instanceof Closure) {
             $definition = new ClosureDefinition($key, $concrete, $this, $construct);
         } elseif (is_object($concrete)) {
             $definition = new ObjectDefinition($key, $concrete, $this, $properties, $methods);
@@ -132,24 +128,18 @@ class Container implements ContainerInterface
      * @param array  $construct
      * @param array  $properties
      * @param array  $methods
-     * @throws \Exception
+     * @throws Exception
      * @return BindDefinition
      */
-    public function bind(
-        $key,
-        $concrete,
-        array $construct = [],
-        array $properties = [],
-        array $methods = []
-    )
+    public function bind($key, $concrete, array $construct = [], array $properties = [], array $methods = [])
     {
         try {
-            $reflected = new \ReflectionClass($concrete);
+            $reflected = new ReflectionClass($concrete);
             if (!$reflected->isInstantiable()) {
                 throw new ContainerException($reflected->getName() . ' Is Not Instantiable.');
             }
             $concrete = $reflected;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
 
@@ -167,16 +157,10 @@ class Container implements ContainerInterface
      * @param array  $construct
      * @param array  $properties
      * @param array  $methods
-     * @throws \Exception
+     * @throws Exception
      * @return BindDefinition
      */
-    public function bindSingleton(
-        $key,
-        $concrete,
-        array $construct = [],
-        array $properties = [],
-        array $methods = []
-    )
+    public function bindSingleton($key, $concrete, array $construct = [], array $properties = [], array $methods = [])
     {
         $definition = $this->bind($key, $concrete, $construct, $properties, $methods);
         $this->singletons[$key] = true;
@@ -194,13 +178,7 @@ class Container implements ContainerInterface
      * @param array  $methods
      * @return ClosureDefinition|ObjectDefinition|ValueDefinition
      */
-    public function singleton(
-        $key,
-        $concrete,
-        array $construct = [],
-        array $properties = [],
-        array $methods = []
-    )
+    public function singleton($key, $concrete, array $construct = [], array $properties = [], array $methods = [])
     {
         $definition = $this->set($key, $concrete, $construct, $properties, $methods);
         $this->singletons[$key] = true;
@@ -215,7 +193,7 @@ class Container implements ContainerInterface
      * @param array  $construct
      * @param array  $properties
      * @param array  $methods
-     * @throws \Exception
+     * @throws Exception
      * @return  mixed Entry.
      */
     public function get($key, array $construct = [], array $properties = [], array $methods = [])
@@ -285,13 +263,20 @@ class Container implements ContainerInterface
 
     /**
      * 注册服务提供者
+     *
      * @param ServiceProviderInterface $provider
+     * @param array                    $values
      * @return $this
      * @author Weijian.Ye <yeweijian@3k.com>
      */
-    public function register(ServiceProviderInterface $provider)
+    public function register(ServiceProviderInterface $provider, array $values = [])
     {
         $provider->register($this);
+
+        foreach ($values as $key => $value) {
+            $this->set($key, $value);
+        }
+
         return $this;
     }
 }
