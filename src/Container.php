@@ -31,38 +31,38 @@ class Container implements ContainerInterface
     const VERSION = '1.0.0';
 
     /**
-     * @var array Definitions map.
+     * 服务定义存储
+     * @var array
      */
-    protected $definitionsMap;
+    protected $definitionsMap = [];
 
     /**
-     * @var array Singleton services instances.
+     * 单例存储
+     * @var array
      */
-    protected $registry;
+    protected $registrySingletons = [];
 
     /**
-     * @var array Singleton services map.
+     * 单例绑定key
+     * @var array
      */
-    protected $singletons;
+    protected $singletons = [];
 
     /**
-     * @var array Service keys being built.
+     * Container constructor.
      */
-    protected $buildingKeys = [];
-
     public function __construct()
     {
         $this->initialize();
     }
 
     /**
-     * Initializes the Container.
-     *
+     * 初始化方法
      * @return void
      */
     protected function initialize()
     {
-        $this->registry = [];
+        $this->registrySingletons = [];
         $this->singletons = [];
         $this->definitionsMap = [];
     }
@@ -198,16 +198,9 @@ class Container implements ContainerInterface
      */
     public function get($key, array $construct = [], array $properties = [], array $methods = [])
     {
-        if (isset($this->registry[$key])) {
-            return $this->registry[$key];
+        if (isset($this->registrySingletons[$key])) {
+            return $this->registrySingletons[$key];
         }
-
-        // 防止重复解析
-        if (array_key_exists($key, $this->buildingKeys)) {
-            throw new ContainerException("当前[{$key}]已定义");
-        }
-
-        $this->buildingKeys[$key] = true;
 
         if (!$this->has($key)) {
             // 将组装一个新的反射定义，如果存在类，将尝试解析所有依赖关系，并在可能的情况下实例化该对象。
@@ -215,10 +208,9 @@ class Container implements ContainerInterface
         }
 
         $returnValue = $this->definitionsMap[$key]->build($construct, $properties, $methods);
-        unset($this->buildingKeys[$key]);
 
         if (isset($this->singletons[$key])) {
-            return $this->registry[$key] = $returnValue;
+            return $this->registrySingletons[$key] = $returnValue;
         }
 
         return $returnValue;
@@ -233,7 +225,7 @@ class Container implements ContainerInterface
     public function remove($key)
     {
         if (isset($this->definitionsMap[$key])) {
-            unset($this->definitionsMap[$key], $this->registry[$key], $this->singletons[$key]);
+            unset($this->definitionsMap[$key], $this->registrySingletons[$key], $this->singletons[$key]);
             return true;
         }
 
