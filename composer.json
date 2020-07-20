@@ -1,0 +1,33 @@
+{
+    "name": "vzina/container",
+    "description": "php",
+    "type": "library",
+    "require": {
+        "php": ">=7.0",
+        "psr/container": "^1.0@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~7.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "vzina",
+            "email": "yeweijian299@163.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "EyPhp\\Container\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EyPhpTest\\": "test"
+        }
+    },
+    "scripts": {
+        "test": "phpunit -c phpunit.xml --colors=always"
+    },
+    "minimum-stability": "dev"
+}
