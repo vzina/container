@@ -25,6 +25,8 @@ use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
+    const VERSION = '1.0.0';
+
     /**
      * @var array Definitions map.
      */
@@ -60,9 +62,6 @@ class Container implements ContainerInterface
         $this->registry = [];
         $this->singletons = [];
         $this->definitionsMap = [];
-
-        $this->set(__CLASS__, $this);
-        $this->alias('Container', __CLASS__);
     }
 
     /**
