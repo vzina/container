@@ -83,21 +83,23 @@ return self::__proxyCall(
 CODE, [$params, $method->isVariadic()]);
         }
 
-        if ($isUseTrait) {
-            $constructor = '__construct';
-            if ($class->hasMethod($constructor)) {
-                $constructorMethod = $class->getMethod('__construct');
-                $body = '$this->__handlePropertyHandler(__CLASS__);' . PHP_EOL . $constructorMethod->getBody();
-                $constructorMethod->setBody($body);
-            } else {
-                $constructorMethod = $class->addMethod('__construct');
-                if ($class->getExtends()) {
-                    $constructorMethod->addBody('if (method_exists(parent::class, \'__construct\')) {');
-                    $constructorMethod->addBody('    parent::__construct(...func_get_args());');
-                    $constructorMethod->addBody('}');
-                }
-                $constructorMethod->addBody('$this->__handlePropertyHandler(__CLASS__);');
+        if (! $isUseTrait) {
+            $class->addTrait(PropertyTrait::class);
+        }
+
+        $constructor = '__construct';
+        if ($class->hasMethod($constructor)) {
+            $constructorMethod = $class->getMethod('__construct');
+            $body = '$this->__handlePropertyHandler(__CLASS__);' . PHP_EOL . $constructorMethod->getBody();
+            $constructorMethod->setBody($body);
+        } else {
+            $constructorMethod = $class->addMethod('__construct');
+            if ($class->getExtends()) {
+                $constructorMethod->addBody('if (method_exists(parent::class, \'__construct\')) {');
+                $constructorMethod->addBody('    parent::__construct(...func_get_args());');
+                $constructorMethod->addBody('}');
             }
+            $constructorMethod->addBody('$this->__handlePropertyHandler(__CLASS__);');
         }
     }
 
