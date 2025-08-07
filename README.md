@@ -98,6 +98,18 @@ final class ComponentProvider
 }
 ```
 
+### 注册组件`composer.json`
+```json5
+{
+  // other...
+  "extra": {
+    "open_ef": {
+      "config": "OpenEf\\Container\\ComponentProvider"
+    }
+  }
+}
+```
+
 ## 使用示例
 
 ### 1. 依赖注入示例
