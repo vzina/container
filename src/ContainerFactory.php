@@ -30,6 +30,11 @@ class ContainerFactory
 {
     protected static ContainerInterface $instance;
 
+    public static function getContainer(): ContainerInterface
+    {
+        return static::$instance;
+    }
+
     public static function make(callable $callback = null, ?ContainerInterface $container = null): ContainerInterface
     {
         if (! isset(static::$instance)) {
