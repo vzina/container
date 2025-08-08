@@ -17,7 +17,7 @@ use Psr\Container\ContainerInterface;
 
 class Container extends \Pimple\Container implements ContainerInterface
 {
-    public function make(string $className, $params): mixed
+    public function make(string $className, array $params = []): mixed
     {
         return $this->build($className, $params)($this);
     }

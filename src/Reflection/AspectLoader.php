@@ -22,13 +22,12 @@ class AspectLoader
         $instanceClasses = $instanceAnnotations = [];
         $instancePriority = null;
         foreach ($properties as $property) {
-            if ($property->getName() === 'classes') {
-                $instanceClasses = ReflectionManager::getPropertyDefaultValue($property);
-            } elseif ($property->getName() === 'annotations') {
-                $instanceAnnotations = ReflectionManager::getPropertyDefaultValue($property);
-            } elseif ($property->getName() === 'priority') {
-                $instancePriority = ReflectionManager::getPropertyDefaultValue($property);
-            }
+            match ($property->getName()) {
+                'classes' => $instanceClasses = ReflectionManager::getPropertyDefaultValue($property),
+                'annotations' => $instanceAnnotations = ReflectionManager::getPropertyDefaultValue($property),
+                'priority' => $instancePriority = ReflectionManager::getPropertyDefaultValue($property),
+                default => null,
+            };
         }
 
         return [$instanceClasses, $instanceAnnotations, $instancePriority];

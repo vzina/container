@@ -19,18 +19,6 @@ class ScanConfig
     {
     }
 
-    public function has(string $key): bool
-    {
-        return Arr::has($this->items, $key);
-    }
-
-    public function set(string $key, $value = null)
-    {
-        Arr::set($this->items, $key, $value);
-
-        return $this;
-    }
-
     public function get(string $key, $default = null)
     {
         return Arr::get($this->items, $key, $default);
@@ -48,9 +36,14 @@ class ScanConfig
         return $this;
     }
 
+    public function getRuntimeContainerPath(): string
+    {
+        return (string)$this->get('runtime_container_path', $this->getAppPath() . '/runtime/container/');
+    }
+
     public function getProxyPath(): string
     {
-        return (string)$this->get('proxy_path', BASE_PATH . '/runtime/container/proxy/');
+        return (string)$this->get('proxy_path', $this->getRuntimeContainerPath() . 'proxy/');
     }
 
     public function isCacheable(): bool
@@ -81,5 +74,10 @@ class ScanConfig
     public function getDependencies(): array
     {
         return (array)$this->get('dependencies');
+    }
+
+    protected function getAppPath(): string
+    {
+        return defined('BASE_PATH') ? BASE_PATH : sys_get_temp_dir();
     }
 }

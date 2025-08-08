@@ -59,15 +59,15 @@ class ProxyManager
             mkdir($this->getProxyDir(), 0755, true);
         }
 
-        $gen = new NetteGenerator();
-        foreach ($proxies as $className => $sourcePath) {
-            $proxyFiles[$className] = $this->putProxyFile($gen, $className, $sourcePath);
+        $ast = AstParser::getInstance();
+        foreach ($proxies as $className => $_) {
+            $proxyFiles[$className] = $this->putProxyFile($ast, $className);
         }
 
         return $proxyFiles;
     }
 
-    protected function putProxyFile(CodeGeneratorInterface $gen, string $className, string $sourcePath): string
+    protected function putProxyFile(AstParser $ast, string $className): string
     {
         $proxyFilePath = $this->getProxyFilePath($className);
         $modified = true;
@@ -76,7 +76,7 @@ class ProxyManager
         }
 
         if ($modified) {
-            file_put_contents($proxyFilePath, $gen->genProxyCode($className, $sourcePath));
+            file_put_contents($proxyFilePath, $ast->proxy($className));
         }
 
         return $proxyFilePath;

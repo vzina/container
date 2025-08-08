@@ -25,7 +25,6 @@
         "ext-pcntl": "*",
         "illuminate/collections": "^8.0",
         "illuminate/pipeline": "^8.83",
-        "nette/php-generator": "^4.1",
         "nikic/php-parser": "^5.0",
         "php-di/phpdoc-reader": "^2.2",
         "pimple/pimple": "^3.0",

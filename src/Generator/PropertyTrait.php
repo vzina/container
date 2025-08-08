@@ -85,7 +85,7 @@ trait PropertyTrait
             foreach ($propertyMetadata as $annotationName => $annotation) {
                 if ($callbacks = PropertyManager::get($annotationName)) {
                     foreach ($callbacks as $callback) {
-                        call_user_func_array($callback, [$this, $currentClassName, $targetClassName, $propertyName, $annotation]);
+                        $callback($this, $currentClassName, $targetClassName, $propertyName, $annotation);
                     }
                     $handled[] = $propertyName;
                 }

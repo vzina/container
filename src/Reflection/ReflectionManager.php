@@ -14,7 +14,6 @@ namespace OpenEf\Container\Reflection;
 use InvalidArgumentException;
 use OpenEf\Container\Collector\MetadataCollector;
 use OpenEf\Container\Generator\AstParser;
-use OpenEf\Container\Generator\NetteGenerator;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -103,7 +102,7 @@ class ReflectionManager extends MetadataCollector
 
     public static function getAllClassesByFinder(Finder $finder): array
     {
-        $parser = new AstParser();
+        $parser = AstParser::getInstance();
         $reflectionClasses = [];
         foreach ($finder as $file) {
             $stmts = $parser->parse($file->getContents());

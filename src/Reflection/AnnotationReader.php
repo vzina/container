@@ -83,38 +83,23 @@ class AnnotationReader
         if (! method_exists($reflection, 'getAttributes')) {
             return $result;
         }
+
         $attributes = $reflection->getAttributes();
         foreach ($attributes as $attribute) {
             if (! class_exists($attribute->getName())) {
-                $className = $methodName = $propertyName = $classConstantName = '';
-                if ($reflection instanceof ReflectionClass) {
-                    $className = $reflection->getName();
-                } elseif ($reflection instanceof ReflectionMethod) {
-                    $className = $reflection->getDeclaringClass()->getName();
-                    $methodName = $reflection->getName();
-                } elseif ($reflection instanceof ReflectionProperty) {
-                    $className = $reflection->getDeclaringClass()->getName();
-                    $propertyName = $reflection->getName();
-                } elseif ($reflection instanceof ReflectionClassConstant) {
-                    $className = $reflection->getDeclaringClass()->getName();
-                    $classConstantName = $reflection->getName();
-                }
-                $message = sprintf(
+                throw new \RuntimeException(sprintf(
                     "No attribute class found for '%s' in %s",
                     $attribute->getName(),
-                    $className
-                );
-                if ($methodName) {
-                    $message .= sprintf('->%s() method', $methodName);
-                }
-                if ($propertyName) {
-                    $message .= sprintf('::$%s property', $propertyName);
-                }
-                if ($classConstantName) {
-                    $message .= sprintf('::%s class constant', $classConstantName);
-                }
-                throw new \RuntimeException($message);
+                    match (true) {
+                        $reflection instanceof ReflectionClass => $reflection->getName(),
+                        $reflection instanceof ReflectionMethod => $reflection->getDeclaringClass()->getName() . sprintf('->%s() method', $reflection->getName()),
+                        $reflection instanceof ReflectionProperty => $reflection->getDeclaringClass()->getName() . sprintf('::$%s property', $reflection->getName()),
+                        $reflection instanceof ReflectionClassConstant => $reflection->getDeclaringClass()->getName() . sprintf('::%s class constant', $reflection->getName()),
+                        default => '',
+                    }
+                ));
             }
+
             $result[] = $attribute->newInstance();
         }
         return $result;

@@ -11,12 +11,6 @@ declare (strict_types=1);
 
 namespace OpenEf\Container\ScanHandler;
 
-use Nette\PhpGenerator\Attribute;
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\EnumType;
-use Nette\PhpGenerator\InterfaceType;
-use Nette\PhpGenerator\Literal;
-use Nette\PhpGenerator\TraitType;
 use OpenEf\Container\Annotation\AnnotationInterface;
 use OpenEf\Container\Annotation\Aspect;
 use OpenEf\Container\Collector\AnnotationCollector;
@@ -27,20 +21,16 @@ use OpenEf\Container\Generator\ProxyManager;
 use OpenEf\Container\Reflection\AnnotationReader;
 use OpenEf\Container\Reflection\AspectLoader;
 use OpenEf\Container\Reflection\ReflectionManager;
-use OpenEf\Framework\Contract\ConfigInterface;
 use ReflectionClass;
 use RuntimeException;
-use Symfony\Component\Filesystem\Filesystem;
 
 class Scanner
 {
-    protected Filesystem $filesystem;
-
-    protected string $path = BASE_PATH . '/runtime/container/scan.cache';
+    protected string $path;
 
     public function __construct(protected ScanConfig $config, protected ScanHandlerInterface $handler)
     {
-        $this->filesystem = new Filesystem();
+        $this->path = $this->config->getRuntimeContainerPath() . 'scan.cache';
     }
 
     public function scan(array $classMap = []): array
@@ -98,7 +88,7 @@ class Scanner
         $proxies = $proxyManager->getProxies();
         $aspectClasses = $proxyManager->getAspectClasses();
 
-        $this->filesystem->dumpFile($this->path, serialize([$data, $proxies, $aspectClasses]));
+        file_put_contents($this->path, serialize([$data, $proxies, $aspectClasses]));
         exit;
     }
 
@@ -111,6 +101,7 @@ class Scanner
                 return;
             }
         }
+
         // Parse class annotations
         foreach ($reader->getAttributes($reflection) as $classAnnotation) {
             if ($classAnnotation instanceof AnnotationInterface) {
@@ -180,15 +171,15 @@ class Scanner
 
     protected function clearRemovedClasses(array $collectors, array $reflections): void
     {
-        $path = BASE_PATH . '/runtime/container/classes.cache';
+        $path = $this->config->getRuntimeContainerPath() . 'classes.cache';
         $classes = array_keys($reflections);
 
         $data = [];
-        if ($this->filesystem->exists($path)) {
+        if (file_exists($path)) {
             $data = unserialize(file_get_contents($path));
         }
 
-        $this->filesystem->dumpFile($path, serialize($classes));
+        file_put_contents($path, serialize($classes));
 
         $removed = array_diff($data, $classes);
 
@@ -199,7 +190,6 @@ class Scanner
             }
         }
     }
-
 
     /**
      * Load aspects to AspectCollector by configuration files and ConfigProvider.
@@ -220,7 +210,7 @@ class Scanner
                 $priority = null;
             } else {
                 $aspect = $key;
-                $priority = (int) $value;
+                $priority = (int)$value;
             }
 
             if (! in_array($aspect, $changed)) {
@@ -241,7 +231,7 @@ class Scanner
 
     protected function getChangedAspects(array $aspects, int $lastCacheModified): array
     {
-        $path = BASE_PATH . '/runtime/container/aspects.cache';
+        $path = $this->config->getRuntimeContainerPath() . 'aspects.cache';
         $classes = [];
         foreach ($aspects as $key => $value) {
             if (is_numeric($key)) {
@@ -252,11 +242,11 @@ class Scanner
         }
 
         $data = [];
-        if ($this->filesystem->exists($path)) {
+        if (file_exists($path)) {
             $data = unserialize(file_get_contents($path));
         }
 
-        $this->filesystem->dumpFile($path, serialize($classes));
+        file_put_contents($path, serialize($classes));
 
         $diff = array_diff($data, $classes);
         $changed = array_diff($classes, $data);

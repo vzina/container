@@ -16,6 +16,7 @@ use Illuminate\Pipeline\Pipeline;
 use OpenEf\Container\Collector\AnnotationCollector;
 use OpenEf\Container\Collector\AspectCollector;
 use OpenEf\Container\Reflection\AspectManager;
+use OpenEf\Container\Reflection\ReflectionManager;
 use OpenEf\Framework\ApplicationContext;
 
 trait ProxyTrait
@@ -30,28 +31,6 @@ trait ProxyTrait
         $result = self::handleAround($proceedingJoinPoint);
         unset($proceedingJoinPoint);
         return $result;
-    }
-
-    protected static function __getParamsMap(array $defaultMap, array $args, bool $isVariadic): array
-    {
-        $map = ['keys' => [], 'order' => []];
-        $leftArgCount = count($args);
-        foreach ($defaultMap as $key => $value) {
-            $arg = $isVariadic ? $args : array_shift($args);
-            if (! isset($arg) && $leftArgCount <= 0) {
-                $arg = $value instanceof DefaultLiteral ? $value->getRawValue() : $value;
-            }
-            --$leftArgCount;
-            $map['keys'][$key] = $arg;
-            $map['order'][] = $key;
-        }
-
-        return $map;
-    }
-
-    protected static function __getDefaultLiteral(string $className)
-    {
-        return new DefaultLiteral($className);
     }
 
     protected static function handleAround(ProceedingJoinPoint $proceedingJoinPoint)

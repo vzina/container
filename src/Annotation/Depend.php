@@ -11,7 +11,9 @@ declare (strict_types=1);
 
 namespace OpenEf\Container\Annotation;
 
-#[\Attribute(\Attribute::TARGET_CLASS)]
+use Attribute;
+
+#[Attribute(Attribute::TARGET_CLASS)]
 class Depend extends AbstractAnnotation
 {
     public function __construct(

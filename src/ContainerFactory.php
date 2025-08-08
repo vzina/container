@@ -14,6 +14,9 @@ namespace OpenEf\Container;
 use OpenEf\Container\Annotation\Depend;
 use OpenEf\Container\Annotation\Inject;
 use OpenEf\Container\Collector\AnnotationCollector;
+use OpenEf\Container\Generator\AstPropertyVisitor;
+use OpenEf\Container\Generator\AstProxyCallVisitor;
+use OpenEf\Container\Generator\AstVisitorRegistry;
 use OpenEf\Container\Reflection\PropertyManager;
 use OpenEf\Container\Reflection\ReflectionManager;
 use OpenEf\Container\ScanHandler\PcntlScanHandler;
@@ -40,6 +43,9 @@ class ContainerFactory
 
             // 自定义初始化回调
             $callback && $callback($container);
+
+            // 加载ast
+            static::initAstVisitors();
 
             // 加载组件
             static::loadComponentProviders($container);
@@ -104,6 +110,17 @@ class ContainerFactory
         ksort($builds);
         foreach ($builds as $id => $depends) {
             $container[$id] = $container->build(...array_pop($depends));
+        }
+    }
+
+    protected static function initAstVisitors(): void
+    {
+        if (! AstVisitorRegistry::exists(AstPropertyVisitor::class)) {
+            AstVisitorRegistry::insert(AstPropertyVisitor::class);
+        }
+
+        if (! AstVisitorRegistry::exists(AstProxyCallVisitor::class)) {
+            AstVisitorRegistry::insert(AstProxyCallVisitor::class);
         }
     }
 
