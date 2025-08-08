@@ -15,9 +15,8 @@ use Closure;
 use Illuminate\Pipeline\Pipeline;
 use OpenEf\Container\Collector\AnnotationCollector;
 use OpenEf\Container\Collector\AspectCollector;
+use OpenEf\Container\ContainerFactory;
 use OpenEf\Container\Reflection\AspectManager;
-use OpenEf\Container\Reflection\ReflectionManager;
-use OpenEf\Framework\ApplicationContext;
 
 trait ProxyTrait
 {
@@ -76,7 +75,7 @@ trait ProxyTrait
             {
                 return fn($stack, $pipe) => function ($passable) use ($stack, $pipe) {
                     if (is_string($pipe) && class_exists($pipe)) {
-                        $pipe = ApplicationContext::getContainer()->get($pipe);
+                        $pipe = ContainerFactory::make()->get($pipe);
                     }
 
                     if (! $passable instanceof ProceedingJoinPoint) {

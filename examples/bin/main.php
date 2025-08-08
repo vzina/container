@@ -21,13 +21,14 @@ require_once BASE_PATH . '/vendor/autoload.php';
     /** @var OpenEf\Container\Container $container */
     $container = ContainerFactory::make(function ($c) {
         $c->extend(ScanConfig::class, fn(ScanConfig $sc) => $sc->merge([
-            'paths' => [ // 扫描文件目录
+            'paths' => [ // 指定扫描文件目录
                 BASE_PATH . '/app',
             ],
         ]));
     });
 
     $foo = $container->get(\App\Foo::class);
-    echo $foo->test(); // hello
+    echo $foo->test(); // before...hello
+    echo $foo->test2(); // before...hello2
     var_dump($foo->getBar()); // object(App\Bar)
 })();

@@ -17,6 +17,11 @@ class Foo
         return 'hello' . PHP_EOL;
     }
 
+    public function test2()
+    {
+        return 'hello2' . PHP_EOL;
+    }
+
     public function getBar(): Bar
     {
         return $this->bar;

@@ -11,12 +11,13 @@ use OpenEf\Container\Generator\ProceedingJoinPoint;
 class FooAspect implements AspectInterface
 {
     public array $classes = [
-        'Foo::test'
+        'App\Foo::test',
+        'App\Foo::test*',
     ];
 
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
-        echo 'before...' . PHP_EOL;
+        echo 'before...';
         return $proceedingJoinPoint->process();
     }
 }
