@@ -23,14 +23,18 @@ use OpenEf\Container\Reflection\AspectLoader;
 use OpenEf\Container\Reflection\ReflectionManager;
 use ReflectionClass;
 use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Scanner
 {
+    protected Filesystem $filesystem;
+
     protected string $path;
 
     public function __construct(protected ScanConfig $config, protected ScanHandlerInterface $handler)
     {
         $this->path = $this->config->getRuntimeContainerPath() . 'scan.cache';
+        $this->filesystem = new Filesystem();
     }
 
     public function scan(array $classMap = []): array
@@ -88,7 +92,7 @@ class Scanner
         $proxies = $proxyManager->getProxies();
         $aspectClasses = $proxyManager->getAspectClasses();
 
-        file_put_contents($this->path, serialize([$data, $proxies, $aspectClasses]));
+        $this->filesystem->dumpFile($this->path, serialize([$data, $proxies, $aspectClasses]));
         exit;
     }
 
@@ -175,11 +179,11 @@ class Scanner
         $classes = array_keys($reflections);
 
         $data = [];
-        if (file_exists($path)) {
+        if ($this->filesystem->exists($path)) {
             $data = unserialize(file_get_contents($path));
         }
 
-        file_put_contents($path, serialize($classes));
+        $this->filesystem->dumpFile($path, serialize($classes));
 
         $removed = array_diff($data, $classes);
 
@@ -190,6 +194,7 @@ class Scanner
             }
         }
     }
+
 
     /**
      * Load aspects to AspectCollector by configuration files and ConfigProvider.
@@ -210,7 +215,7 @@ class Scanner
                 $priority = null;
             } else {
                 $aspect = $key;
-                $priority = (int)$value;
+                $priority = (int) $value;
             }
 
             if (! in_array($aspect, $changed)) {
@@ -242,11 +247,11 @@ class Scanner
         }
 
         $data = [];
-        if (file_exists($path)) {
+        if ($this->filesystem->exists($path)) {
             $data = unserialize(file_get_contents($path));
         }
 
-        file_put_contents($path, serialize($classes));
+        $this->filesystem->dumpFile($path, serialize($classes));
 
         $diff = array_diff($data, $classes);
         $changed = array_diff($classes, $data);

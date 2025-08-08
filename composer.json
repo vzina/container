@@ -20,6 +20,10 @@
         }
     ],
     "minimum-stability": "dev",
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
     "require": {
         "php": "^8.2",
         "ext-pcntl": "*",
@@ -29,6 +33,7 @@
         "php-di/phpdoc-reader": "^2.2",
         "pimple/pimple": "^3.0",
         "psr/container": "^1.0",
+        "symfony/filesystem": "^7.3",
         "symfony/finder": "^5.4"
     },
     "require-dev": {
