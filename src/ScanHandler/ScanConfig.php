@@ -24,14 +24,9 @@ class ScanConfig
         return Arr::get($this->items, $key, $default);
     }
 
-    public function merge($key, array $value = [])
+    public function merge(array $values)
     {
-        // 合并配置以项目配置为主
-        if (is_array($key)) {
-            $this->items = array_merge_recursive($key, $this->items);
-        } elseif (is_string($key)) {
-            $this->items[$key] = array_merge_recursive($value, (array)$this->get($key));
-        }
+        $this->items = array_merge_recursive($values, $this->items);
 
         return $this;
     }
